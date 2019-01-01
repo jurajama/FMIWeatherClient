@@ -20,6 +20,6 @@ if __name__ == '__main__':
 
     w = fmiweather(debug=options.debug)
 
-    measTime, temperature = w.getCurrentWeather(location=options.location)
+    measTime, temperature = w.getCurrentWeather(location=options.location, historyMinutes=30)
 
-    print measTime + " : " + temperature
+    print "result: " + measTime + " : " + temperature

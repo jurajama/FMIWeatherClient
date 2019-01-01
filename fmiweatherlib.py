@@ -14,7 +14,7 @@ class fmiweather():
     def __init__(self, debug=False):
         self.debugMode = debug
 
-    def getCurrentWeather(self, location, historyMinutes=10):
+    def getCurrentWeather(self, location, historyMinutes=20, timestep=10):
 
         d = datetime.datetime.utcnow()
         d_start = d-datetime.timedelta(minutes=historyMinutes)
@@ -23,7 +23,7 @@ class fmiweather():
         params['place']      = location
         params['starttime']  = d_start.strftime("%Y-%m-%dT%H:%M:00Z")
         params['parameters'] = 't2m'   # comma separated list of measured items to query, 't2m' is observed temperature
-        params['timestep']   = 10      # granularity of data
+        params['timestep']   = timestep      # granularity of data
 
         URL = self.FMI_BASE_URL + urllib.urlencode(params)
 
@@ -50,11 +50,14 @@ class fmiweather():
 
             if namevalue == "t2m":
                 value = member.getElementsByTagName('BsWfs:ParameterValue')[0]
-                currentTemp = value.childNodes[0].data
 
-            timeElem = member.getElementsByTagName('BsWfs:Time')[0]
-            measTime = timeElem.childNodes[0].data
+                # Sometimes "NaN" is returned for very fresh data
+                if value.childNodes[0].data != 'NaN':
+                  currentTemp = value.childNodes[0].data
 
-            if self.debugMode: print measTime + " : " + currentTemp
+                  timeElem = member.getElementsByTagName('BsWfs:Time')[0]
+                  measTime = timeElem.childNodes[0].data
+
+                  if self.debugMode: print measTime + " : " + currentTemp
 
         return measTime, currentTemp
