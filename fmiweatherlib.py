@@ -53,11 +53,11 @@ class fmiweather():
 
                 # Sometimes "NaN" is returned for very fresh data
                 if value.childNodes[0].data != 'NaN':
-                  currentTemp = value.childNodes[0].data
+                  currentTemp = float(value.childNodes[0].data)
 
                   timeElem = member.getElementsByTagName('BsWfs:Time')[0]
                   measTime = timeElem.childNodes[0].data
 
-                  if self.debugMode: print measTime + " : " + currentTemp
+                  if self.debugMode: print measTime + " : " + str(currentTemp)
 
         return measTime, currentTemp
