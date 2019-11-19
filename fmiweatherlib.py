@@ -25,16 +25,16 @@ class fmiweather():
         params['parameters'] = 't2m'   # comma separated list of measured items to query, 't2m' is observed temperature
         params['timestep']   = timestep      # granularity of data
 
-        URL = self.FMI_BASE_URL + urllib.urlencode(params)
+        URL = self.FMI_BASE_URL + urllib.parse.urlencode(params)
 
-        if self.debugMode: print "URL: " + URL
+        if self.debugMode: print("URL: " + URL)
 
         response = requests.get(URL)
 
-        if self.debugMode: print "status: " + str(response.status_code)
-        if self.debugMode: print response.headers
+        if self.debugMode: print("status: " + str(response.status_code))
+        if self.debugMode: print(response.headers)
 
-        if self.debugMode: print response.text
+        if self.debugMode: print(response.text)
 
         DOMTree = xml.dom.minidom.parseString(response.text)
 
@@ -58,6 +58,6 @@ class fmiweather():
                   timeElem = member.getElementsByTagName('BsWfs:Time')[0]
                   measTime = timeElem.childNodes[0].data
 
-                  if self.debugMode: print measTime + " : " + str(currentTemp)
+                  if self.debugMode: print(measTime + " : " + str(currentTemp))
 
         return measTime, currentTemp
