@@ -22,4 +22,7 @@ if __name__ == '__main__':
 
     measTime, temperature = w.getCurrentWeather(location=options.location, historyMinutes=30)
 
-    print ("result: " + measTime + " : " + str(temperature))
+    if measTime is not None:
+        print ("result: " + measTime + " : " + str(temperature))
+    else:
+        print ("No results found")
