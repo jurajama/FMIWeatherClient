@@ -4,11 +4,11 @@ Python client to read weather info from FMI open data service https://en.ilmatie
 ## Installation and use
 
 Using the demo application to print result to console does not require any other modules to be installed. Execute the tool:
-Install dependencies with `pip install -r requirements.txt` (only `requests` is needed for the demo; `influxdb` is needed for weathersender.py).
+Install dependencies with `pip install -r requirements.txt` (only `requests` is needed).
 
 ``python3 demo.py --location tampella
 ``
 
 Location parameter is geographical name for the place for which you want to get the data. It could be generic like "helsinki", or more specific FMI observation station like "tampella".
 
-_weathersender.py_ is application that sends temperature data to InfluxDB database setup with https://github.com/jurajama/TempMonitor. It supports InfluxDB 1.x (tested with 1.12) via the `influxdb` Python package; InfluxDB 2.x and 3.x are not supported. To use that, configure your server information in _my_config.py_ and run the application like _python3 /home/pi/FMIWeatherClient/weathersender.py --location=tampella_. You may want to make that as cron task to send data periodically.
+_weathersender.py_ is application that sends temperature data to InfluxDB database setup with https://github.com/jurajama/TempMonitor. It supports InfluxDB 1.x (tested with 1.12) via its plain HTTP `/write` API using `requests`; InfluxDB 2.x and 3.x are not supported. To use that, configure your server information in _my_config.py_ and run the application like _python3 /home/pi/FMIWeatherClient/weathersender.py --location=tampella_. You may want to make that as cron task to send data periodically.
