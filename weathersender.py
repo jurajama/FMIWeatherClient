@@ -1,10 +1,11 @@
 # coding=utf-8
-from optparse import OptionParser
+import argparse
+import sys
+
+import requests
 from fmiweatherlib import fmiweather
-import pprint
 
 from influxdb import InfluxDBClient
-import datetime
 
 import my_config as conf
 
@@ -14,26 +15,17 @@ import my_config as conf
 # python weathersender.py --location=tampella
 
 if __name__ == '__main__':
-    parser = OptionParser('usage: %prog [options]')
-
-    parser.add_option("-l", "--location", type="string", dest="location", help="Location for which weather data is searched")
-    parser.add_option("-d", "--debug", action="store_true", dest="debug", help="Enable debug mode")
-
-    (options, args) = parser.parse_args()
-
-    required="location".split()
-
-    for r in required:
-        if options.__dict__[r] is None:
-            parser.error("parameter %s required"%r)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-l", "--location", required=True, help="Location for which weather data is searched")
+    parser.add_argument("-d", "--debug", action="store_true", help="Enable debug mode")
+    options = parser.parse_args()
 
     w = fmiweather(debug=options.debug)
 
-    measTime = None
-    temperature = 0.0
-
-    measTime, temperature = w.getCurrentWeather(location=options.location, historyMinutes=30)
-    
+    try:
+        measTime, temperature = w.getCurrentWeather(location=options.location, historyMinutes=30)
+    except requests.RequestException as e:
+        sys.exit("Failed to fetch weather data: %s" % e)
 
     json_temp = [
         {
@@ -45,8 +37,6 @@ if __name__ == '__main__':
         }
     ]
 
-#    print "result: " + measTime + " : " + temperature
-
-    if measTime!=None and temperature!=None:
+    if measTime is not None and temperature is not None:
         client = InfluxDBClient(conf.INFLUXDB_HOST, conf.INFLUXDB_PORT, conf.INFLUXDB_USER, conf.INFLUXDB_PWD, conf.INFLUXDB_DATABASE, timeout=5)
         client.write_points(json_temp)

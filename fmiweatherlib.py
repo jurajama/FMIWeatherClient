@@ -1,6 +1,9 @@
 # coding=utf-8
-import requests, urllib, datetime
+import datetime
+import urllib.parse
 import xml.dom.minidom
+
+import requests
 
 # Docs:
 # https://en.ilmatieteenlaitos.fi/open-data-manual-fmi-wfs-services
@@ -9,14 +12,14 @@ import xml.dom.minidom
 # http://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=describeStoredQueries
 
 class fmiweather():
-    FMI_BASE_URL = "http://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::observations::weather::simple&"
+    FMI_BASE_URL = "https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::observations::weather::simple&"
 
     def __init__(self, debug=False):
         self.debugMode = debug
 
     def getCurrentWeather(self, location, historyMinutes=20, timestep=10):
 
-        d = datetime.datetime.utcnow()
+        d = datetime.datetime.now(datetime.timezone.utc)
         d_start = d-datetime.timedelta(minutes=historyMinutes)
 
         params = {}
@@ -29,7 +32,8 @@ class fmiweather():
 
         if self.debugMode: print("URL: " + URL)
 
-        response = requests.get(URL)
+        response = requests.get(URL, timeout=15)
+        response.raise_for_status()
 
         if self.debugMode: print("status: " + str(response.status_code))
         if self.debugMode: print(response.headers)

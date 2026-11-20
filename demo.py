@@ -1,26 +1,24 @@
 # coding=utf-8
-from optparse import OptionParser
+import argparse
+import sys
+
+import requests
 from fmiweatherlib import fmiweather
 
 
 if __name__ == '__main__':
-    parser = OptionParser('usage: %prog [options]')
-
-    parser.add_option("-l", "--location", type="string", dest="location", help="Location for which weather data is searched")
-    parser.add_option("-d", "--debug", action="store_true", dest="debug", help="Enable debug mode")
-
-    (options, args) = parser.parse_args()
-
-    required="location".split()
-
-    for r in required:
-        if options.__dict__[r] is None:
-            parser.error("parameter %s required"%r)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-l", "--location", required=True, help="Location for which weather data is searched")
+    parser.add_argument("-d", "--debug", action="store_true", help="Enable debug mode")
+    options = parser.parse_args()
 
 
     w = fmiweather(debug=options.debug)
 
-    measTime, temperature = w.getCurrentWeather(location=options.location, historyMinutes=30)
+    try:
+        measTime, temperature = w.getCurrentWeather(location=options.location, historyMinutes=30)
+    except requests.RequestException as e:
+        sys.exit("Failed to fetch weather data: %s" % e)
 
     if measTime is not None:
         print ("result: " + measTime + " : " + str(temperature))
